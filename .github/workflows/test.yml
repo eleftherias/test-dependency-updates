@@ -1,0 +1,33 @@
+on:
+  workflow_call:
+jobs:
+  test:
+    name: Unit testing
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout your project with git
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install Go on the VM running the action.
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Set up helm (test dependency)
+        uses: azure/setup-helm@v3
+
+      # Install gotestfmt on the VM running the action.
+      - name: Set up gotestfmt
+        uses: GoTestTools/gotestfmt-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # copy config file into place
+      - name: Copy config file
+        run: cp config/config.yaml.example ./config.yaml
+
+      # Run the tests
+      - name: Run tests
+        run: make test
